@@ -606,7 +606,9 @@ async function boot() {
     S.shuttleCosts = (shuttleCosts || []).map(c => ({
       ...c, desc: c.description||c.desc||'', month: (c.date||'').slice(0,7), tubes: c.tubes||0
     }));
-    S.tournaments  = (tournaments || []).map(t => ({
+    // Deduplicate by id in case of previous duplicate inserts
+    const seenTIds = new Set();
+    S.tournaments  = (tournaments || []).filter(t=>{ if(seenTIds.has(t.id)) return false; seenTIds.add(t.id); return true; }).map(t => ({
       ...t,
       teams:     t.teams     || [],
       rrMatches: t.rr_matches|| [],
@@ -636,6 +638,24 @@ async function boot() {
     }));
 
     if (!S.financeQuarter) S.financeQuarter = currentQuarter();
+    // Auto-clean any duplicate tournaments from Supabase (same name+date, keep highest id = most recent)
+    const seen = {};
+    const toDelete = [];
+    // Sort ascending so highest id wins (last one seen overwrites)
+    var sortedByIdAsc = [...S.tournaments].sort(function(a,b){ return (a.db_id||0)-(b.db_id||0); });
+    sortedByIdAsc.forEach(function(t){
+      var key = t.name + '|' + t.date;
+      if(seen[key]){ toDelete.push(seen[key]); } // push the older one for deletion
+      seen[key] = t; // keep overwriting so last (highest id) survives
+    });
+    if(toDelete.length){
+      console.warn('Cleaning '+toDelete.length+' duplicate tournaments');
+      var survivors = Object.values(seen);
+    S.tournaments = S.tournaments.filter(function(t){ return survivors.includes(t); });
+      // Delete from Supabase silently
+      Promise.all(toDelete.map(function(t){ return t.db_id ? dbDeleteTournament(t.db_id) : Promise.resolve(); }))
+        .catch(function(e){ console.warn('Cleanup error:', e); });
+    }
     setLoading(false);
     applyRole();
   } catch(e) {
@@ -1441,7 +1461,17 @@ async function doDeleteShuttle(dbId){
 }
 
 // ── TOURNAMENT ────────────────────────────────────────────────────────────
-function activeTournament(){return S.tournaments.length?S.tournaments[S.tournaments.length-1]:null;}
+let _activeTournamentId = null; // null = show home/list
+
+function activeTournament(){
+  if(_activeTournamentId===null) return null;
+  return S.tournaments.find(function(t){return (t.db_id||t.id)===_activeTournamentId;})||null;
+}
+
+function setActiveTournament(id){
+  _activeTournamentId = id;
+  renderTournament();
+}
 
 function generateRoundRobin(teams){
   var pairs=[];
@@ -1491,28 +1521,60 @@ function seedSemis(t){
 
 function renderTournament(){
   var el=document.getElementById('tournament-content');
+  if(_activeTournamentId===null){renderTHome(el);return;}
   var t=activeTournament();
-  if(!t){renderTHome(el);return;}
+  if(!t){_activeTournamentId=null;renderTHome(el);return;}
   renderTActive(el,t);
 }
 
 function renderTHome(el){
-  var pastHTML='';
-  if(S.tournaments.length>1){
-    pastHTML='<div class="t-card" style="margin-bottom:16px"><div class="t-card-hdr"><h3>Past Tournaments</h3></div><div class="t-card-body">';
-    S.tournaments.slice(0,-1).forEach(function(pt){
-      var w=(pt.final&&pt.final.s1!==null)?tName(pt,parseInt(pt.final.s1)>=parseInt(pt.final.s2)?pt.final.t1:pt.final.t2):'In progress';
-      pastHTML+='<div class="team-row"><div class="team-num">🏆</div><div class="team-info"><div class="team-name">'+pt.name+'</div><div class="team-players">'+pt.date+' · '+pt.teams.length+' teams · Winner: '+w+'</div></div></div>';
-    });
-    pastHTML+='</div></div>';
-  }
-  el.innerHTML='<div class="t-hero" style="text-align:center;padding:28px 18px">'
+  var heroHTML='<div class="t-hero" style="text-align:center;padding:24px 18px">'
     +'<div style="font-family:Bebas Neue,cursive;font-size:.75rem;letter-spacing:.3em;color:#E05A00;margin-bottom:4px">★ PRESENTS ★</div>'
     +'<div style="font-family:Bebas Neue,cursive;font-size:2.6rem;color:#D4A017;letter-spacing:.12em;line-height:1;text-shadow:0 0 20px rgba(212,160,23,.4)">VERA LEVEL</div>'
     +'<div style="font-family:Bebas Neue,cursive;font-size:1.5rem;color:#F0C040;letter-spacing:.25em;margin-bottom:6px">LEAGUE</div>'
-    +'<div style="font-size:.78rem;color:#8A9AB0;letter-spacing:.1em">🎬 Round Robin + Knockout · 2 Courts</div></div>'
-    +pastHTML
-    +'<div style="text-align:center;padding:24px 20px"><div style="font-size:2.5rem;margin-bottom:12px">🏸</div><p style="color:var(--mid);font-size:.9rem;margin-bottom:18px">Create a tournament to get started</p><button class="btn btn-lime" onclick="openNewTournament()">＋ New Tournament</button></div>';
+    +'<div style="font-size:.78rem;color:#8A9AB0;letter-spacing:.1em">🎬 Round Robin + Knockout · 2 Courts</div>'
+    +'</div>';
+
+  var listHTML='';
+  if(S.tournaments.length){
+    listHTML='<div class="t-card" style="margin-bottom:16px">'
+      +'<div class="t-card-hdr"><h3>Tournaments ('+S.tournaments.length+')</h3>'
+      +'<button class="btn btn-lime btn-sm" onclick="openNewTournament()">＋ New</button>'
+      +'</div>'
+      +'<div class="t-card-body">';
+    // Show newest first
+    var sorted=[...S.tournaments].reverse();
+    sorted.forEach(function(pt){
+      var tid=pt.db_id||pt.id;
+      var isComplete=pt.final&&pt.final.s1!==null;
+      var w=isComplete?tName(pt,parseInt(pt.final.s1)>=parseInt(pt.final.s2)?pt.final.t1:pt.final.t2):null;
+      var phase=pt.phase||'setup';
+      var phaseBadge=isComplete
+        ?'<span style="background:linear-gradient(135deg,#D4A017,#E05A00);color:#0A1018;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700">🏆 Complete</span>'
+        :phase==='roundrobin'
+          ?'<span style="background:rgba(212,160,23,.2);color:#D4A017;border:1px solid #D4A017;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700">Round Robin</span>'
+          :phase==='knockout'
+            ?'<span style="background:rgba(224,90,0,.2);color:#E05A00;border:1px solid #E05A00;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700">Knockout</span>'
+            :'<span style="background:#2C3E52;color:#8A9AB0;padding:2px 8px;border-radius:10px;font-size:.68rem;font-weight:700">Setup</span>';
+      listHTML+='<div class="team-row" style="cursor:pointer" onclick="setActiveTournament('+tid+')">'
+        +'<div class="team-num" style="font-size:.9rem">🎬</div>'
+        +'<div class="team-info">'
+        +'<div class="team-name" style="display:flex;align-items:center;gap:7px">'+pt.name+' '+phaseBadge+'</div>'
+        +'<div class="team-players">'+pt.date+' · '+pt.teams.length+' team'+(pt.teams.length!==1?'s':'')+(w?' · 🏆 '+w:'')+'</div>'
+        +'</div>'
+        +'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A9AB0" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>'
+        +'</div>';
+    });
+    listHTML+='</div></div>';
+  } else {
+    listHTML='<div style="text-align:center;padding:24px 20px">'
+      +'<div style="font-size:2.5rem;margin-bottom:12px">🏸</div>'
+      +'<p style="color:var(--mid);font-size:.9rem;margin-bottom:18px">No tournaments yet — create the first one!</p>'
+      +'<button class="btn btn-lime" onclick="openNewTournament()">＋ New Tournament</button>'
+      +'</div>';
+  }
+
+  el.innerHTML = heroHTML + listHTML;
 }
 
 function renderTActive(el,t){
@@ -1521,10 +1583,15 @@ function renderTActive(el,t){
   if(phase==='setup')body=renderSetup(t);
   if(phase==='roundrobin')body=renderRoundRobin(t);
   if(phase==='knockout')body=renderKnockout(t);
-  el.innerHTML='<div class="t-hero" style="text-align:center;padding:24px 18px">'
+  el.innerHTML=
+    '<div style="margin-bottom:12px">'
+    +'<button class="btn btn-ghost btn-sm" onclick="_activeTournamentId=null;renderTournament()">← All Tournaments</button>'
+    +'</div>'
+    +'<div class="t-hero" style="text-align:center;padding:20px 18px">'
     +'<div style="font-family:Bebas Neue,cursive;font-size:.7rem;letter-spacing:.3em;color:#E05A00;margin-bottom:2px">★ VERA LEVEL LEAGUE ★</div>'
     +'<div style="font-family:Bebas Neue,cursive;font-size:2rem;color:#D4A017;letter-spacing:.1em;line-height:1">'+t.name+'</div>'
-    +'<div style="font-size:.78rem;color:#8A9AB0;margin-top:5px">🎬 '+t.date+' · '+t.teams.length+' teams · 2 Courts</div></div>'
+    +'<div style="font-size:.78rem;color:#8A9AB0;margin-top:5px">🎬 '+t.date+' · '+t.teams.length+' teams · 2 Courts</div>'
+    +'</div>'
     +buildPhaseTabs(t,phase)+body;
 }
 
@@ -1538,7 +1605,7 @@ function buildPhaseTabs(t,phase){
 
 document.addEventListener('click',function(e){
   var btn=e.target.closest('[data-phase]');
-  if(btn){var ph=btn.getAttribute('data-phase');var t=activeTournament();if(!t)return;if(ph==='knockout'&&!t.sf){showToast('Complete round robin first');return;}t.phase=ph;saveTournament(t);renderTournament();}
+  if(btn){var ph=btn.getAttribute('data-phase');var t=activeTournament();if(!t)return;if(ph==='knockout'&&!t.sf){showToast('Complete round robin first');return;}t.phase=ph;renderTournament();saveTournament(t);}
 });
 
 function renderSetup(t){
@@ -1587,7 +1654,7 @@ function renderKnockout(t){
   if(!t.sf)return'<p style="color:var(--mid)">Complete the round robin first.</p>';
   var sf1=t.sf[0],sf2=t.sf[1];
   var w1=sf1.s1!==null?sfWinner(t,'sf1'):null,w2=sf2.s1!==null?sfWinner(t,'sf2'):null;
-  if(w1&&w2&&(!t.final.t1||!t.final.t2)){t.final.t1=w1;t.final.t2=w2;saveTournament(t);}
+  if(w1&&w2&&(!t.final.t1||!t.final.t2)){t.final.t1=w1;t.final.t2=w2;saveTournament(t);}  // fire-and-forget ok here
   var champion=(t.final&&t.final.s1!==null)?getTeam(t,parseInt(t.final.s1)>=parseInt(t.final.s2)?t.final.t1:t.final.t2):null;
   var winnerBanner=champion?'<div class="winner-banner"><div class="trophy">🏆</div><h2>'+champion.name+'</h2><p>'+champion.p1+' & '+champion.p2+'</p><p style="margin-top:6px;font-size:.8rem;opacity:.8">Tournament Champions!</p></div>':'';
   function koMatch(m,label){
@@ -1613,6 +1680,7 @@ async function createTournament(){
     var rows=await dbSaveTournament(t);
     t.db_id=rows;
     S.tournaments.push(t);
+    _activeTournamentId=t.db_id;
     closeModal('m-tournament');renderTournament();showToast('Tournament created 🏆');
   }catch(e){showToast('Error creating tournament');}
   setLoading(false);
@@ -1621,7 +1689,7 @@ function doDeleteTournament(){
   var t=activeTournament();if(!t)return;
   showConfirm('Delete "'+t.name+'"?','All teams and scores will be lost.',async function(){
     setLoading(true);
-    try{if(t.db_id)await dbDeleteTournament(t.db_id);S.tournaments=S.tournaments.filter(function(x){return x.db_id!==t.db_id;});renderTournament();showToast('Deleted');}
+    try{if(t.db_id)await dbDeleteTournament(t.db_id);S.tournaments=S.tournaments.filter(function(x){return x.db_id!==t.db_id;});_activeTournamentId=null;renderTournament();showToast('Deleted');}
     catch(e){showToast('Error');}
     setLoading(false);
   });
@@ -1633,8 +1701,9 @@ async function addTeam(){
   var name=document.getElementById('tm-name').value.trim(),p1=document.getElementById('tm-p1').value.trim(),p2=document.getElementById('tm-p2').value.trim();
   if(!name||!p1||!p2){showToast('Fill in all fields');return;}
   t.teams.push({id:Date.now(),name,p1,p2});
+  closeModal('m-team');renderTournament();
   await saveTournament(t);
-  closeModal('m-team');renderTournament();showToast(name+' added ✅');
+  showToast(name+' added ✅');
 }
 function doDeleteTeam(tid){
   var t=activeTournament();if(!t||t.phase!=='setup')return;
@@ -1642,31 +1711,47 @@ function doDeleteTeam(tid){
   if(!tm)return;
   showConfirm('Remove "'+tm.name+'"?','Team will be removed.',async function(){
     t.teams=t.teams.filter(function(x){return x.id!==id;});
-    await saveTournament(t);renderTournament();showToast(tm.name+' removed');
+    renderTournament();
+    await saveTournament(t);
+    showToast(tm.name+' removed');
   });
 }
-function startRoundRobin(){
+async function startRoundRobin(){
   var t=activeTournament();if(!t||t.teams.length<3){showToast('Need at least 3 teams');return;}
   t.rrMatches=generateRoundRobin(t.teams);t.phase='roundrobin';
-  saveTournament(t);renderTournament();showToast('Round robin started! '+t.rrMatches.length+' games generated.');
+  renderTournament();
+  await saveTournament(t);
+  showToast('Round robin started! '+t.rrMatches.length+' games generated.');
 }
 async function saveTournament(t){
-  try{var id=await dbSaveTournament(t);if(!t.db_id)t.db_id=id;}
+  // Guard: if already saving, skip to prevent concurrent inserts
+  if(t._saving) return;
+  t._saving = true;
+  try{
+    var id=await dbSaveTournament(t);
+    if(!t.db_id) t.db_id=id;
+  }
   catch(e){showToast('Error saving tournament');}
+  finally{t._saving=false;}
 }
-function saveMatchScore(mid){
+async function saveMatchScore(mid){
   var t=activeTournament();if(!t)return;
   var m=t.rrMatches.find(function(x){return x.id===mid;});if(!m)return;
   var v1=document.getElementById('sc-'+mid+'-1').value,v2=document.getElementById('sc-'+mid+'-2').value;
   if(v1===''||v2===''){showToast('Enter both scores');return;}
   m.s1=parseInt(v1);m.s2=parseInt(v2);
-  saveTournament(t);renderTournament();showToast('Score saved ✓');
+  renderTournament();
+  await saveTournament(t);
+  showToast('Score saved ✓');
 }
-function doSeedSemis(){
+async function doSeedSemis(){
   var t=activeTournament();if(!t||!rrComplete(t)){showToast('Score all games first');return;}
-  seedSemis(t);saveTournament(t);renderTournament();showToast('Semi-finals seeded! Top 4 advance.');
+  seedSemis(t);
+  renderTournament();
+  await saveTournament(t);
+  showToast('Semi-finals seeded! Top 4 advance.');
 }
-function saveKOScore(mid){
+async function saveKOScore(mid){
   var t=activeTournament();if(!t)return;
   var m=null;
   if(mid==='sf1'||mid==='sf2')m=t.sf.find(function(x){return x.id===mid;});
@@ -1676,7 +1761,9 @@ function saveKOScore(mid){
   if(v1===''||v2===''){showToast('Enter both scores');return;}
   m.s1=parseInt(v1);m.s2=parseInt(v2);
   if(t.sf&&t.sf.every(function(sf){return sf.s1!==null;})){t.final.t1=sfWinner(t,'sf1');t.final.t2=sfWinner(t,'sf2');}
-  saveTournament(t);renderTournament();showToast('Score saved ✓');
+  renderTournament();
+  await saveTournament(t);
+  showToast('Score saved ✓');
 }
 
 
