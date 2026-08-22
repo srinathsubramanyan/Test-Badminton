@@ -13,10 +13,11 @@
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>Southern Smashers</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
 <style>
-:root{--green:#0F1923;--lime:#D4A017;--white:#F5EDD8;--amber:#E05A00;--red:#C0200A;--dark:#0A1018;--mid:#8A9AB0;--border:#2C3E52;--surface:#1A2433;}
+:root{--green:#0F1923;--lime:#D4A017;--white:#F5EDD8;--amber:#E05A00;--red:#C0200A;--dark:#0A1018;--mid:#8A9AB0;--border:#2C3E52;--surface:#1A2433;--bg:#0F1923;--card:#1A2433;--card2:#0F1923;--nav-bg:linear-gradient(135deg,#0A1018,#0F1923,#140800);--nav-border:#D4A017;--accent:#D4A017;--accent2:#E05A00;--accent-text:#0A1018;--text:#F5EDD8;--text-muted:#8A9AB0;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Inter',sans-serif;background:#0F1923;color:#F5EDD8;min-height:100vh;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
 nav{background:linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%);border-bottom:2px solid #D4A017;padding:0 14px;display:flex;align-items:center;justify-content:space-between;height:64px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(212,160,23,.15);}
 .logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.25rem;color:var(--lime);letter-spacing:-0.02em;}
 .logo span{color:var(--white);}
@@ -475,6 +476,25 @@ nav{background:linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%);borde
   </div>
 </div>
 
+
+<!-- ADD CASUAL CREDIT MODAL -->
+<div class="overlay" id="m-credit">
+  <div class="modal">
+    <h3>💳 Add Credit</h3>
+    <input type="hidden" id="credit-member-id">
+    <p style="font-size:.85rem;color:#8A9AB0;margin-bottom:14px">Adding credit for <strong id="credit-member-name" style="color:#D4A017"></strong></p>
+    <div class="fgrid">
+      <div class="frow"><label>Amount (A$)</label><input type="number" id="credit-amount" placeholder="e.g. 100" min="1" step="1"></div>
+      <div class="frow"><label>Date</label><input type="date" id="credit-date"></div>
+    </div>
+    <div class="frow"><label>Note (optional)</label><input type="text" id="credit-note" placeholder="e.g. Bulk top-up for term"></div>
+    <div class="modal-btns">
+      <button class="btn btn-ghost" onclick="closeModal('m-credit')">Cancel</button>
+      <button class="btn btn-lime" onclick="saveCasualCredit()">Save Credit</button>
+    </div>
+  </div>
+</div>
+
 <!-- CONFIRM MODAL -->
 <div class="overlay" id="m-confirm">
   <div class="modal" style="max-width:340px">
@@ -493,14 +513,56 @@ nav{background:linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%);borde
 // ============================================================
 // CONFIG
 // ============================================================
-const SUPABASE_URL = 'https://goegqodxnqmqfuhqqwje.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvZWdxb2R4bnFtcWZ1aHFxd2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3OTM0MzcsImV4cCI6MjEwMjM2OTQzN30.qC-7tyI2OoIMl-boW7f-NtWz63AUgMdacQ6uUeWo7Mw';
+// ── Read from config.js (loaded before this script) ────────────────────
+const CFG = window.APP_CONFIG || {};
+
+// Apply theme colours from config as CSS custom properties
+(function applyTheme() {
+  const t = CFG.theme || {};
+  const root = document.documentElement;
+  if (t.bg)         { root.style.setProperty('--bg',        t.bg); root.style.setProperty('--green', t.bg); }
+  if (t.card)       { root.style.setProperty('--card',      t.card); root.style.setProperty('--surface', t.card); }
+  if (t.card2)      root.style.setProperty('--card2',       t.card2);
+  if (t.accent)     { root.style.setProperty('--accent',    t.accent); root.style.setProperty('--lime', t.accent); }
+  if (t.accent2)    { root.style.setProperty('--accent2',   t.accent2); root.style.setProperty('--amber', t.accent2); }
+  if (t.accentText) root.style.setProperty('--accent-text', t.accentText);
+  if (t.text)       { root.style.setProperty('--text',      t.text); root.style.setProperty('--white', t.text); }
+  if (t.textMuted)  { root.style.setProperty('--text-muted',t.textMuted); root.style.setProperty('--mid', t.textMuted); }
+  if (t.border)     { root.style.setProperty('--border',    t.border); }
+  if (t.dark)       root.style.setProperty('--dark',        t.dark);
+  if (t.red)        root.style.setProperty('--red',         t.red);
+
+  // Page title and meta
+  const name = CFG.clubName || 'Southern Smashers';
+  document.title = name;
+  const appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+  if (appleTitle) appleTitle.content = name;
+  const themeColor = document.querySelector('meta[name="theme-color"]');
+  if (themeColor && t.bg) themeColor.content = t.bg;
+
+  // Nav bar inline style (gradient needs JS since CSS vars can't be in gradient strings easily)
+  document.addEventListener('DOMContentLoaded', function() {
+    const nav = document.querySelector('nav');
+    if (nav && t.navBg)    nav.style.background   = t.navBg;
+    if (nav && t.navBorder) nav.style.borderBottomColor = t.navBorder;
+
+    // Club name in nav
+    const nameEl = document.getElementById('nav-club-name');
+    if (nameEl) nameEl.textContent = CFG.clubName || 'Southern Smashers';
+
+    // Club subname / day
+    const subEl = document.getElementById('nav-club-sub');
+    if (subEl) subEl.textContent = CFG.groupName || '';
+  });
+})();
+const SUPABASE_URL = CFG.supabaseUrl || '';
+const SUPABASE_KEY = CFG.supabaseKey || '';
 // PINs loaded from Supabase settings table at boot
-let PINS = { sessions: '2055', finance: '2055' };
+let PINS = { sessions: CFG.sessionPin || '2055', finance: CFG.financePin || '2055' };
 let _sessionUnlocked = false;
 let _financeUnlocked = false;
 let _pendingPinContext = null; // 'sessions' | 'finance'
-let CASUAL_FEE = 11; // configurable, loaded from app_settings at boot
+let CASUAL_FEE = CFG.casualFee || 11; // overridden by app_settings at boot
 
 // ── Supabase REST helper ───────────────────────────────────────────────────
 async function sb(path, method='GET', body=null) {
@@ -580,7 +642,7 @@ function setLoading(on) {
 async function boot() {
   setLoading(true);
   try {
-    const [members, sessions, feePayments, sessionCosts, shuttleCosts, tournaments, appSettings, casualPayments] = await Promise.all([
+    const [members, sessions, feePayments, sessionCosts, shuttleCosts, tournaments, appSettings, casualPayments, shuttleUsage] = await Promise.all([
       sb('members?order=name'),
       sb('sessions?order=date'),
       sb('fee_payments?order=id'),
@@ -589,6 +651,7 @@ async function boot() {
       sb('tournaments?order=id'),
       sb('app_settings?order=key'),
       sb('casual_payments?order=id'),
+      sb('shuttle_usage?order=date'),
     ]);
 
     // sessions need their players loaded too
@@ -600,8 +663,9 @@ async function boot() {
         if(r.key==='casual_fee')   CASUAL_FEE=parseFloat(r.value)||11;
       });
     }
-    S.members      = members || [];
+    S.members        = members || [];
     S.casualPayments = casualPayments || [];
+    S.shuttleUsage   = (shuttleUsage || []);
     S.feePayments  = feePayments || [];
     S.shuttleCosts = (shuttleCosts || []).map(c => ({
       ...c, desc: c.description||c.desc||'', month: (c.date||'').slice(0,7), tubes: c.tubes||0
@@ -819,6 +883,17 @@ function isMemberActiveOn(member, dateStr) {
 function sessionsInQ(q){const ms=quarterMonths(q);return S.sessions.filter(s=>ms.includes(s.date.slice(0,7)));}
 function courtCostsInQ(q){return sessionsInQ(q).reduce((a,s)=>a+(S.sessionCosts[s.id]||0),0);}
 function shuttleCostsInQ(q){const ms=quarterMonths(q);return S.shuttleCosts.filter(c=>ms.includes(c.month)).reduce((a,c)=>a+c.amount,0);}
+
+// Usage-based shuttle cost for a quarter: tubes opened in Q × all-time avg cost-per-tube
+function shuttleUsageCostInQ(q){
+  const months=quarterMonths(q);
+  const usageInQ=(S.shuttleUsage||[]).filter(u=>months.includes((u.date||'').slice(0,7)));
+  const tubesUsedInQ=usageInQ.reduce((a,u)=>a+(u.tubes_opened||0),0);
+  const totalTubesBought=S.shuttleCosts.reduce((a,c)=>a+(c.tubes||0),0);
+  const totalCostBought=S.shuttleCosts.reduce((a,c)=>a+c.amount,0);
+  const costPerTube=totalTubesBought>0?totalCostBought/totalTubesBought:0;
+  return tubesUsedInQ*costPerTube;
+}
 function totalCostsInQ(q){return courtCostsInQ(q)+shuttleCostsInQ(q);}
 function feesPaidByMemberInQ(memberId,q){return S.feePayments.filter(p=>p.member_id===memberId&&p.quarter===q).reduce((a,p)=>a+p.amount,0);}
 
@@ -898,11 +973,30 @@ function memberRunningBalance(member){
 
 function poolBalance(){
   const totalIn=S.feePayments.reduce((a,p)=>a+p.amount,0);
-  // Add casual payments received
-  const casualIn=S.casualPayments ? S.casualPayments.reduce((a,p)=>a+p.amount,0) : 0;
+  const casualIn=(S.casualPayments||[]).reduce((a,p)=>a+p.amount,0);
   const totalCourt=Object.values(S.sessionCosts||{}).reduce((a,v)=>a+v,0);
   const totalShuttle=S.shuttleCosts.reduce((a,c)=>a+c.amount,0);
   return totalIn+casualIn-totalCourt-totalShuttle;
+}
+
+// All-time credits paid by a casual member (sum of all top-ups ever)
+function casualCreditPaid(memberId){
+  return (S.casualPayments||[]).filter(p=>p.member_id===memberId).reduce((a,p)=>a+p.amount,0);
+}
+
+// All-time sessions attended by a casual member (across all sessions)
+function casualSessionsAttended(memberId){
+  return S.sessions.filter(s=>s.players.find(p=>p.id===memberId&&p.status==='going')).length;
+}
+
+// Running balance for a casual member (credit - cost used)
+function casualBalance(memberId){
+  return casualCreditPaid(memberId) - casualSessionsAttended(memberId)*CASUAL_FEE;
+}
+
+// Sessions attended this quarter only
+function casualSessionsInQ(memberId,q){
+  return sessionsInQ(q).filter(s=>s.players.find(p=>p.id===memberId&&p.status==='going')).length;
 }
 function feeAlert(){
   const bal=poolBalance(); const q=currentQuarter();
@@ -1239,7 +1333,8 @@ function renderFinance(){
   const qOpts=qs.map(x=>'<option value="'+x+'"'+(x===q?' selected':'')+'>'+quarterLabel(x)+'</option>').join('');
   const sessions=sessionsInQ(q);
   const courtTotal=courtCostsInQ(q);
-  const shuttleTotal=shuttleCostsInQ(q);
+  const shuttleTotal=shuttleUsageCostInQ(q); // cost of tubes actually used this quarter
+  const shuttlePurchaseTotal=shuttleCostsInQ(q); // total purchased (shown in Shuttles tab)
   const allCosts=courtTotal+shuttleTotal;
   const months=quarterMonths(q);
   const feesThisQ=S.feePayments.filter(p=>p.quarter===q).reduce((a,p)=>a+p.amount,0);
@@ -1247,26 +1342,45 @@ function renderFinance(){
   const permMembers=S.members.filter(m=>m.type==='permanent');
   const ai=feeAlert();
 
-  // ── Casual income breakdown per member ──────────────────────────────────
-  const casualMap={};
-  S.members.filter(m=>m.type==='casual').forEach(m=>{
-    casualMap[m.id]={id:m.id,name:m.name,sessions:[],totalOwed:0,totalPaid:0};
+  // ── Registered casual members — balance model (all-time credit) ──────────
+  const memberIds = new Set(S.members.map(m=>m.id));
+  const casualList = S.members.filter(m=>m.type==='casual').map(m=>{
+    const qSessions     = casualSessionsInQ(m.id, q);
+    const allSessions   = casualSessionsAttended(m.id);
+    const allCredits    = casualCreditPaid(m.id);
+    const balance       = casualBalance(m.id);
+    const qCost         = qSessions * CASUAL_FEE;
+    const qSessionDates = sessionsInQ(q)
+      .filter(s=>s.players.find(p=>p.id===m.id&&p.status==='going'))
+      .map(s=>s.date);
+    return {id:m.id, name:m.name, isGuest:false, qSessions, qCost, qSessionDates,
+            allSessions, allCredits, balance};
   });
+
+  // ── Guest players — attended sessions this quarter, not registered members ─
+  const guestMap = {};
   sessions.forEach(s=>{
     s.players.forEach(p=>{
-      if(p.type==='casual'&&p.status==='going'){
-        if(!casualMap[p.id]) casualMap[p.id]={id:p.id,name:p.name,sessions:[],totalOwed:0,totalPaid:0};
-        casualMap[p.id].sessions.push(s.date);
-        casualMap[p.id].totalOwed+=CASUAL_FEE;
+      if(p.type==='casual' && p.status==='going' && !memberIds.has(p.id)){
+        const key = p.name.trim().toLowerCase();
+        if(!guestMap[key]){
+          // find if they have a casual_payment record (keyed by player id)
+          const guestPaid = (S.casualPayments||[])
+            .filter(cp=>cp.member_id===p.id && cp.quarter===q)
+            .reduce((a,cp)=>a+cp.amount,0);
+          guestMap[key]={id:p.id, name:p.name, sessions:[], totalOwed:0, totalPaid:guestPaid};
+        }
+        guestMap[key].sessions.push(s.date);
+        guestMap[key].totalOwed += CASUAL_FEE;
       }
     });
   });
-  (S.casualPayments||[]).filter(p=>p.quarter===q).forEach(p=>{
-    if(casualMap[p.member_id]) casualMap[p.member_id].totalPaid+=p.amount;
-  });
-  const casualList=Object.values(casualMap).filter(c=>c.sessions.length>0||c.totalPaid>0);
-  const casualIncomeOwed=casualList.reduce((a,c)=>a+c.totalOwed,0);
-  const casualIncomePaid=casualList.reduce((a,c)=>a+c.totalPaid,0);
+  const guestList = Object.values(guestMap);
+
+  const casualIncomeOwed  = casualList.reduce((a,c)=>a+c.qCost,0)
+                          + guestList.reduce((a,g)=>a+g.totalOwed,0);
+  const casualIncomePaid  = (S.casualPayments||[]).filter(p=>p.quarter===q).reduce((a,p)=>a+p.amount,0);
+  const casualTotalCredit = casualList.reduce((a,c)=>a+c.allCredits,0);
 
   // ── Session cost rows ────────────────────────────────────────────────────
   let sessionCostRows='';
@@ -1306,17 +1420,40 @@ function renderFinance(){
       +'</tr>';
   }).join('');
 
-  // ── Casual income rows ───────────────────────────────────────────────────
+  // ── Casual member rows — balance model ──────────────────────────────────
   const casualRows=casualList.map(c=>{
-    const paid=c.totalPaid>=c.totalOwed*0.99&&c.totalOwed>0;
+    const balColor = c.balance >= 0 ? '#D4A017' : 'var(--red)';
+    const balLabel = c.balance >= 0
+      ? '<span style="color:#D4A017;font-weight:700">A$'+c.balance.toFixed(2)+' credit</span>'
+      : '<span style="color:var(--red);font-weight:700">A$'+Math.abs(c.balance).toFixed(2)+' owes</span>';
+    const qInfo = c.qSessions > 0
+      ? c.qSessions+' session'+(c.qSessions!==1?'s':'')+' this Q ('+c.qSessionDates.map(d=>fmtShort(d)).join(', ')+')'
+      : 'No sessions this quarter';
     return '<tr>'
       +'<td><strong>'+c.name+'</strong>'
-      +'<div style="font-size:.72rem;color:#8A9AB0">'+c.sessions.length+' session'+(c.sessions.length!==1?'s':'')+': '+c.sessions.map(d=>fmtShort(d)).join(', ')+'</div></td>'
-      +'<td style="font-weight:600;color:#D4A017">A$'+c.totalOwed.toFixed(2)+'</td>'
-      +'<td style="font-weight:600;color:'+(c.totalPaid>0?'#D4A017':'#8A9AB0')+'">A$'+c.totalPaid.toFixed(2)+'</td>'
+      +'<div style="font-size:.72rem;color:#8A9AB0">'+qInfo+'</div></td>'
+      +'<td style="font-size:.83rem;color:#D4A017">A$'+c.qCost.toFixed(2)+'<div style="font-size:.7rem;color:#8A9AB0">'+c.allSessions+' sessions all-time</div></td>'
+      +'<td style="font-size:.83rem">A$'+c.allCredits.toFixed(2)+'<div style="font-size:.7rem;color:#8A9AB0">all-time credit</div></td>'
+      +'<td>'+balLabel+'</td>'
+      +'<td style="display:flex;gap:5px">'
+      +'<button class="btn btn-lime btn-sm" onclick="openAddCredit('+c.id+',\''+c.name.replace(/\'/g,"\\'")+'\')">＋ Credit</button>'
+      +'<button class="btn btn-red btn-sm" onclick="doRemoveMember('+c.id+')">✕</button>'
+      +'</td>'
+      +'</tr>';
+  }).join('');
+
+  // ── Guest rows ────────────────────────────────────────────────────────────
+  const guestRows = guestList.map(g=>{
+    const paid = g.totalPaid >= g.totalOwed * 0.99 && g.totalOwed > 0;
+    return '<tr>'
+      +'<td><strong>'+g.name+'</strong><span style="margin-left:6px;font-size:.68rem;background:#2C3E52;color:#8A9AB0;padding:1px 6px;border-radius:8px">guest</span>'
+      +'<div style="font-size:.72rem;color:#8A9AB0">'+g.sessions.map(d=>fmtShort(d)).join(', ')+'</div></td>'
+      +'<td>'+g.sessions.length+'</td>'
+      +'<td style="font-weight:600;color:#D4A017">A$'+g.totalOwed.toFixed(2)+'</td>'
+      +'<td style="color:'+(g.totalPaid>0?'#D4A017':'#8A9AB0')+'">A$'+g.totalPaid.toFixed(2)+'</td>'
       +'<td>'+(paid
         ?'<span style="color:#D4A017;font-size:.82rem;font-weight:600">✓ Paid</span>'
-        :'<button class="btn btn-lime btn-sm" onclick="markCasualPaid('+c.id+',\''+q+'\','+c.totalOwed+')">Mark Paid</button>')
+        :'<button class="btn btn-lime btn-sm" onclick="markGuestPaid('+JSON.stringify(g.id)+',\''+q+'\','+g.totalOwed+')">Mark Paid</button>')
       +'</td></tr>';
   }).join('');
 
@@ -1340,21 +1477,35 @@ function renderFinance(){
     +'<div class="fin-stat"><div class="num" style="color:#D4A017">A$'+allCosts.toFixed(2)+'</div><div class="lbl">Total Costs</div></div>'
     +'<div class="fin-stat"><div class="num" style="color:'+(poolBal>=0?'#D4A017':'var(--red)')+'">A$'+poolBal.toFixed(2)+'</div><div class="lbl">Pool Balance</div></div>'
     +'</div>'
-    +'<div style="font-size:.78rem;color:var(--mid)">Court: <strong>A$'+courtTotal.toFixed(2)+'</strong> · Shuttles (usage-based): <strong>A$'+shuttleTotal.toFixed(2)+'</strong> · <a onclick="showView(\'shuttles\',document.querySelector(\'.nav-tab[data-view=shuttles]\'))" style="color:#D4A017;cursor:pointer">Manage shuttles →</a></div>'
+    +'<div style="font-size:.78rem;color:var(--mid)">Court: <strong>A$'+courtTotal.toFixed(2)+'</strong> · Shuttle usage cost: <strong>A$'+shuttleTotal.toFixed(2)+'</strong> · <a onclick="showView(\'shuttles\',document.querySelector(\'.nav-tab[data-view=shuttles]\'))" style="color:#D4A017;cursor:pointer">Manage shuttles →</a></div>'
     +'</div>'
 
     +'<div class="fin-card"><h3>🏟️ Session Court Costs</h3>'
     +'<div style="font-size:.73rem;color:#8A9AB0;margin-bottom:10px">Split only among permanent members active on each session date (based on start/end dates).</div>'
     +sessionCostRows+'</div>'
 
-    +(casualList.length?
-      '<div class="fin-card"><h3>🎟️ Casual Income · A$'+CASUAL_FEE.toFixed(2)+'/session</h3>'
-      +'<div style="overflow-x:auto"><table class="tbl">'
-      +'<thead><tr><th>Name</th><th>Owed</th><th>Received</th><th></th></tr></thead>'
+    +'<div class="fin-card">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">'
+    +'<h3 style="margin:0">🎟️ Casual Members · A$'+CASUAL_FEE.toFixed(2)+'/session</h3>'
+    +'<button class="btn btn-ghost btn-sm" onclick="openAddMember()">＋ Add Casual</button>'
+    +'</div>'
+    +(casualList.length
+      ?'<div style="overflow-x:auto"><table class="tbl">'
+      +'<thead><tr><th>Name</th><th>Q Cost</th><th>Total Credit</th><th>Balance</th><th></th></tr></thead>'
       +'<tbody>'+casualRows+'</tbody></table></div>'
-      +'<div style="margin-top:9px;font-size:.76rem;color:#8A9AB0">Owed: <strong style="color:#D4A017">A$'+casualIncomeOwed.toFixed(2)+'</strong> · Received: <strong style="color:#D4A017">A$'+casualIncomePaid.toFixed(2)+'</strong> · Outstanding: <strong style="color:'+(casualIncomeOwed-casualIncomePaid>0.005?'var(--red)':'#D4A017')+'">A$'+(casualIncomeOwed-casualIncomePaid).toFixed(2)+'</strong></div>'
-      +'</div>'
-    :'')
+      +'<div style="margin-top:9px;font-size:.75rem;color:#8A9AB0">'
+      +'Q cost: <strong style="color:#D4A017">A$'+casualIncomeOwed.toFixed(2)+'</strong>'
+      +' · Total credits held: <strong style="color:#D4A017">A$'+casualTotalCredit.toFixed(2)+'</strong>'
+      +' · Balance = all credits paid minus all sessions attended (carries over forever)</div>'
+      :'<p style="color:var(--mid);font-size:.83rem">No casual members registered yet. Add members via ＋ Add Casual.</p>')
+    +(guestList.length
+      ?'<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border)">'
+      +'<div style="font-family:Bebas Neue,cursive;font-size:.9rem;color:#8A9AB0;letter-spacing:.08em;margin-bottom:10px">👤 GUEST PLAYERS THIS QUARTER</div>'
+      +'<table class="tbl"><thead><tr><th>Name</th><th>Sessions</th><th>Owed</th><th>Received</th><th></th></tr></thead><tbody>'
+      +guestRows
+      +'</tbody></table></div>'
+      :'')
+    +'</div>'
 
     +'<div class="fin-card">'
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px">'
@@ -1370,16 +1521,50 @@ function renderFinance(){
 
 
 
-async function markCasualPaid(memberId, q, amount) {
+// Mark a guest player as paid for the quarter (simple, no credit system)
+async function markGuestPaid(playerId, q, amount) {
   setLoading(true);
   try {
-    // Remove existing for this member+quarter then insert
-    await sb('casual_payments?member_id=eq.'+memberId+'&quarter=eq.'+q, 'DELETE');
-    const rows = await sb('casual_payments', 'POST', {member_id:memberId, quarter:q, amount});
-    S.casualPayments = (S.casualPayments||[]).filter(p=>!(p.member_id===memberId&&p.quarter===q));
-    S.casualPayments.push({id:rows[0].id, member_id:memberId, quarter:q, amount});
-    renderFinance(); showToast('Payment marked as received ✅');
+    // Use member_id = playerId (guest player id from session_players)
+    await sb('casual_payments?member_id=eq.'+playerId+'&quarter=eq.'+q, 'DELETE');
+    const rows = await sb('casual_payments', 'POST', {
+      member_id: playerId, quarter: q, amount,
+      note: 'Guest payment', date: new Date().toISOString().split('T')[0]
+    });
+    S.casualPayments = (S.casualPayments||[]).filter(p=>!(p.member_id===playerId&&p.quarter===q));
+    S.casualPayments.push({id:rows[0].id, member_id:playerId, quarter:q, amount, note:'Guest payment'});
+    renderFinance(); showToast('Payment received ✅');
   } catch(e) { showToast('Error saving payment'); }
+  setLoading(false);
+}
+
+// Open credit modal for a casual member
+function openAddCredit(memberId, memberName) {
+  document.getElementById('credit-member-id').value   = memberId;
+  document.getElementById('credit-member-name').textContent = memberName;
+  document.getElementById('credit-amount').value = '';
+  document.getElementById('credit-note').value   = '';
+  document.getElementById('credit-date').value   = new Date().toISOString().split('T')[0];
+  openModal('m-credit');
+}
+
+async function saveCasualCredit() {
+  const memberId = parseInt(document.getElementById('credit-member-id').value);
+  const amount   = parseFloat(document.getElementById('credit-amount').value);
+  const note     = document.getElementById('credit-note').value.trim() || 'Top-up';
+  const date     = document.getElementById('credit-date').value;
+  if (!amount || amount <= 0) { showToast('Enter a valid amount'); return; }
+  if (!date) { showToast('Pick a date'); return; }
+  const quarter  = dateToQuarter(date);
+  setLoading(true);
+  try {
+    const rows = await sb('casual_payments', 'POST', {member_id:memberId, quarter, amount, note, date});
+    S.casualPayments = S.casualPayments || [];
+    S.casualPayments.push({id:rows[0].id, member_id:memberId, quarter, amount, note, date});
+    closeModal('m-credit');
+    renderFinance();
+    showToast('A$'+amount.toFixed(2)+' credit added ✅');
+  } catch(e) { showToast('Error saving credit'); }
   setLoading(false);
 }
 
@@ -1775,7 +1960,7 @@ async function saveKOScore(mid){
 // Stock = sum(purchased tubes) - sum(tubes_opened)
 
 async function loadShuttleUsage() {
-  if (S.shuttleUsage) return;
+  if (S.shuttleUsage !== undefined) return; // already loaded at boot
   try {
     const rows = await sb('shuttle_usage?order=date.desc');
     S.shuttleUsage = rows || [];
