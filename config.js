@@ -6,9 +6,9 @@
  */
 window.APP_CONFIG = {
 
-  // ── Identity ──────────────────────────────────────────────
-  clubName:  'Southern Smashers',
-  groupName: 'Monday Group',       // shown under club name in nav
+ // ── Identity ──────────────────────────────────────────────
+  clubName:  'Baddy Buddies',
+  groupName: 'Tuesday Group',      // shown under club name in nav
 
   // ── Supabase credentials ───────────────────────────────────
   // Get these from: Supabase project → Settings → API
@@ -21,29 +21,29 @@ window.APP_CONFIG = {
   sessionPin: '2055',
   financePin: '2055',
 
-  // ── Theme — DARK GOLD (Southern Smashers signature) ────────
+  // ── Theme — WHITE / BLUE / PURPLE (Baddy Buddies) ──────────
   theme: {
     // Backgrounds
-    bg:          '#0F1923',   // dark charcoal — main page bg
-    card:        '#1A2433',   // dark card surface
-    card2:       '#0F1923',   // deeper card / stat box
-    dark:        '#0A1018',   // darkest
+    bg:          '#FFFFFF',   // crisp white — main page bg
+    card:        '#F8F9FA',   // very light grey card surface
+    card2:       '#EEF2FF',   // soft indigo tint — stat boxes
+    dark:        '#1E293B',   // near-black for darkest elements
 
     // Accent colours
-    accent:      '#D4A017',   // gold — primary accent
-    accent2:     '#E05A00',   // flame orange — secondary
-    accentText:  '#0A1018',   // text on accent buttons
+    accent:      '#2563EB',   // strong blue — primary accent
+    accent2:     '#7C3AED',   // purple — secondary
+    accentText:  '#FFFFFF',   // text on accent buttons
 
     // Text
-    text:        '#F5EDD8',   // warm cream — main text
-    textMuted:   '#8A9AB0',   // muted / labels
+    text:        '#1E293B',   // dark slate — main text
+    textMuted:   '#64748B',   // slate grey — labels / muted
 
     // Borders
-    border:      '#2C3E52',   // dark blue-grey border
-    red:         '#C0200A',   // error / delete
+    border:      '#E2E8F0',   // soft grey border
+    red:         '#DC2626',   // error / delete
 
     // Nav
-    navBg:       'linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%)',
-    navBorder:   '#D4A017',
+    navBg:       'linear-gradient(135deg,#1E40AF 0%,#2563EB 60%,#4F46E5 100%)',
+    navBorder:   '#7C3AED',
   },
 };
