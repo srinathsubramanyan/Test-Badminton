@@ -33,6 +33,15 @@
     '--red:'        + (t.red         || '#C0200A'),
     '--nav-border:' + (t.navBorder   || '#D4A017'),
     '--nav-bg:'     + (t.navBg       || 'linear-gradient(135deg,#0A1018,#0F1923,#140800)'),
+    // Chip / status colours — need light/dark variants
+    '--chip-going-bg:'    + (t.chipGoingBg    || 'rgba(212,160,23,.12)'),
+    '--chip-going-border:'+ (t.chipGoingBorder|| '#D4A017'),
+    '--chip-no-bg:'       + (t.chipNoBg       || 'rgba(192,32,10,.1)'),
+    '--chip-no-border:'   + (t.chipNoBorder   || '#C0200A'),
+    '--chip-maybe-bg:'    + (t.chipMaybeBg    || 'rgba(224,90,0,.12)'),
+    '--chip-maybe-border:'+ (t.chipMaybeBorder|| '#E05A00'),
+    '--stat-pos:'         + (t.statPos        || '#D4A017'),
+    '--stat-neg:'         + (t.statNeg        || '#C0200A'),
   ].join(';');
   document.write('<style>:root{' + vars + '}</style>');
 })();
@@ -56,18 +65,18 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:18px;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
 .card-hdr{background:linear-gradient(135deg,var(--bg),var(--card));border-bottom:2px solid var(--accent);padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
 .card-hdr h2{font-family:'Bebas Neue',cursive;font-size:1.3rem;font-weight:400;color:var(--accent);letter-spacing:.05em;}
-.card-hdr p{color:rgba(255,255,255,0.65);font-size:0.8rem;margin-top:2px;}
+.card-hdr p{color:var(--muted);font-size:0.8rem;margin-top:2px;}
 .card-body{padding:14px 18px;}
 .fill-bar{height:7px;background:var(--border);}
 .fill-bar-inner{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width 0.5s cubic-bezier(.22,1,.36,1);}
 .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
 .stat-box{background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:11px;text-align:center;}
 .stat-num{font-family:'Bebas Neue',cursive;font-size:1.6rem;font-weight:400;color:var(--accent);line-height:1;letter-spacing:.04em;}
-.stat-lbl{font-size:0.7rem;color:var(--mid);margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;}
-.sec-lbl{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--mid);margin-bottom:7px;}
+.stat-lbl{font-size:0.7rem;color:var(--muted);margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;}
+.sec-lbl{font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:7px;}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px;}
 .chip{display:flex;align-items:center;gap:5px;border-radius:20px;padding:4px 9px 4px 4px;font-size:0.8rem;font-weight:500;border:1px solid var(--border);background:var(--bg);color:var(--text);}
-.chip.going{border-color:var(--accent);background:rgba(0,0,0,.05);}
+.chip.going{border-color:var(--chip-going-border);background:var(--chip-going-bg);}
 .chip.maybe{border-color:var(--amber);background:#FFF8ED;}
 .chip.notgoing{border-color:var(--red);background:#FEF0EF;opacity:.7;}
 .av{width:20px;height:20px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-txt);font-size:0.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;text-transform:uppercase;}
@@ -99,7 +108,7 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 @media(min-width:580px){.modal{border-radius:14px;}}
 .modal h3{font-family:'Bebas Neue',cursive;font-size:1.4rem;font-weight:400;color:var(--accent);letter-spacing:.07em;margin-bottom:16px;}
 .frow{margin-bottom:13px;}
-.frow label{display:block;font-size:0.76rem;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
+.frow label{display:block;font-size:0.76rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;}
 .frow input,.frow select,.frow textarea{width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:0.88rem;background:var(--bg);color:var(--text);outline:none;transition:border-color .15s;}
 .frow input:focus,.frow select:focus,.frow textarea:focus{border-color:var(--green);}
 .frow textarea{resize:vertical;min-height:65px;}
@@ -119,29 +128,29 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .rsvp-hero{background:linear-gradient(135deg,var(--dark),var(--card));border:2px solid var(--accent);border-radius:14px;padding:22px 18px;margin-bottom:18px;position:relative;overflow:hidden;}
 .rsvp-hero::before{content:'🏸';position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:3.5rem;opacity:.12;}
 .rsvp-hero h1{font-family:'Bebas Neue',cursive;font-size:1.8rem;font-weight:400;color:var(--accent);letter-spacing:.06em;}
-.rsvp-hero p{color:rgba(255,255,255,.7);font-size:0.87rem;margin-top:3px;}
+.rsvp-hero p{color:var(--muted);font-size:0.87rem;margin-top:3px;}
 .rsvp-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;}
 .rsvp-card h3{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;color:var(--green);margin-bottom:13px;}
 .rsvp-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}
 .rsvp-opt{padding:11px 7px;border-radius:9px;border:2px solid #2C3E52;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);}
 .rsvp-opt:hover{border-color:#999;}
-.rsvp-opt.sel-going{border-color:var(--accent);background:rgba(0,0,0,.06);}
+.rsvp-opt.sel-going{border-color:var(--chip-going-border);background:var(--chip-going-bg);}
 .rsvp-opt.sel-maybe{border-color:var(--amber);background:#FFF8ED;}
 .rsvp-opt.sel-no{border-color:var(--red);background:#FEF0EF;}
 .rsvp-opt .emo{font-size:1.4rem;}
-.rsvp-opt .lbl{font-size:0.75rem;font-weight:600;margin-top:3px;color:var(--mid);}
+.rsvp-opt .lbl{font-size:0.75rem;font-weight:600;margin-top:3px;color:var(--muted);}
 .mtype{padding:2px 7px;border-radius:10px;font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;}
-.mtype-perm{background:#E8F5E9;color:#2E7D32;}
-.mtype-cas{background:#FFF3E0;color:#E65100;}
+.mtype-perm{background:rgba(46,125,50,.12);color:#2E7D32;}
+.mtype-cas{background:rgba(230,81,0,.12);color:#E65100;}
 .alert-banner{background:rgba(0,0,0,.08);border:1.5px solid var(--accent2);border-radius:10px;padding:14px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;font-size:0.84rem;line-height:1.5;}
-.alert-banner .ico{font-size:1.3rem;flex-shrink:0;}
+.alert-banner .ico{font-size:1.3rem;flex-shrink:0;color:var(--accent2);}
 .bal-pos{color:var(--accent);font-weight:700;}
 .bal-neg{color:var(--red);font-weight:700;}
 .bal-zero{color:var(--mid);font-weight:600;}
-.empty{text-align:center;padding:36px 18px;color:var(--mid);}
+.empty{text-align:center;padding:36px 18px;color:var(--muted);}
 .empty .ico{font-size:2.8rem;margin-bottom:9px;}
 .empty h3{font-family:'Bebas Neue',cursive;font-size:1.2rem;font-weight:400;color:var(--accent);letter-spacing:.05em;}
-.empty p{font-size:0.82rem;margin-top:3px;}
+.empty p{font-size:0.82rem;margin-top:3px;color:var(--muted);}
 .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(110px);background:var(--dark);color:white;padding:9px 18px;border-radius:28px;font-size:0.82rem;font-weight:500;z-index:999;transition:transform .3s cubic-bezier(.22,1,.36,1);white-space:nowrap;}
 .toast.show{transform:translateX(-50%) translateY(0);}
 .pill-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:7px;}
@@ -151,7 +160,7 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .inline-num{width:76px;padding:5px 7px;border:1.5px solid var(--border);border-radius:6px;font-size:0.82rem;outline:none;font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);}
 .inline-num:focus{border-color:var(--accent);}
 .wa-wrap{background:#ECE5DD;border-radius:11px;padding:14px;margin-bottom:11px;border:1px solid #D4CCC5;}
-.wa-bubble{background:white;border-radius:7px 7px 7px 2px;padding:9px 11px;max-width:92%;display:inline-block;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:pre-wrap;font-family:'Segoe UI',sans-serif;font-size:0.82rem;line-height:1.55;}
+.wa-bubble{background:#fff;color:#111;border-radius:7px 7px 7px 2px;padding:9px 11px;max-width:92%;display:inline-block;box-shadow:0 1px 2px rgba(0,0,0,.1);white-space:pre-wrap;font-family:'Segoe UI',sans-serif;font-size:0.82rem;line-height:1.55;}
 @media(max-width:460px){.stats-row{gap:7px;}.stat-num{font-size:1.15rem;}.actions{gap:5px;}.btn{padding:7px 10px;font-size:0.78rem;}}
 
 /* ── TOURNAMENT ─────────────────────────────────────────────── */
@@ -167,8 +176,8 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .team-row:last-child{border-bottom:none;}
 .team-num{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-txt);font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .team-info{flex:1;min-width:0;}
-.team-name{font-weight:600;font-size:.88rem;}
-.team-players{font-size:.75rem;color:var(--mid);margin-top:1px;}
+.team-name{font-weight:600;font-size:.88rem;color:var(--text);}
+.team-players{font-size:.75rem;color:var(--muted);margin-top:1px;}
 /* match card */
 .match-card{border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;background:var(--card);}
 .match-hdr{background:var(--bg);border-bottom:1px solid #2C3E52;padding:7px 12px;font-size:.74rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;display:flex;justify-content:space-between;align-items:center;}
@@ -177,11 +186,11 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .match-team{text-align:center;}
 .match-team-name{font-weight:700;font-size:.87rem;color:var(--text);}
 .match-team-players{font-size:.72rem;color:var(--mid);margin-top:2px;}
-.match-vs{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;color:var(--mid);}
+.match-vs{font-family:'Syne',sans-serif;font-weight:800;font-size:.9rem;color:var(--muted);}
 .match-score{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:10px;}
 .score-input{width:52px;padding:6px;border:2px solid var(--border);border-radius:8px;font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;text-align:center;outline:none;color:var(--text);background:var(--bg);}
 .score-input:focus{border-color:var(--green);}
-.score-sep{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--mid);}
+.score-sep{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;color:var(--muted);}
 .score-done{background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:6px;color:var(--accent-txt);font-size:.75rem;font-weight:700;padding:5px 10px;cursor:pointer;margin-left:4px;}
 .score-done:hover{background:linear-gradient(135deg,#F0C040,#E07A20);}
 .match-result{text-align:center;margin-top:8px;padding:5px 10px;border-radius:6px;font-size:.8rem;font-weight:600;}
@@ -239,7 +248,7 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 /* ── CARD AESTHETICS ─────────────────────────────────────── */
 .card{background:linear-gradient(145deg,#1E2E40,#162030);border:1px solid rgba(212,160,23,.2);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,.5),0 0 0 1px rgba(212,160,23,.05);}
 .card-hdr{background:linear-gradient(135deg,#0F1923 0%,#1A2C3A 100%);border-bottom:1px solid rgba(0,0,0,.08);padding:12px 16px;}
-.card-body{padding:12px 16px;}
+.card-body{padding:12px 16px;color:var(--text);}
 /* ── GLOW ON FILL BAR ────────────────────────────────────── */
 .fill-bar-inner{box-shadow:0 0 8px rgba(0,0,0,.12);}
 /* ── STAT BOXES ──────────────────────────────────────────── */
@@ -288,7 +297,7 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 <body>
 
 <nav>
-  <button onclick="showView('sessions',document.querySelector('.nav-tab'))" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 0"><svg width="42" height="42" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a2a1a"/><stop offset="100%" stop-color="#0a0f0a"/></radialGradient><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0C040"/><stop offset="100%" stop-color="#C88000"/></linearGradient><linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#C0200A"/><stop offset="50%" stop-color="#E05A00"/><stop offset="100%" stop-color="#F0C040"/></linearGradient></defs><!-- Shield body --><path d="M100 8 L18 38 L18 110 Q18 168 100 192 Q182 168 182 110 L182 38 Z" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="4"/><!-- Red inner border --><path d="M100 18 L28 44 L28 110 Q28 160 100 180 Q172 160 172 110 L172 44 Z" fill="none" stroke="#C0200A" stroke-width="2.5" opacity="0.7"/><!-- Left flame --><path d="M28 130 Q15 110 20 85 Q25 100 30 95 Q22 115 35 130 Z" fill="url(#flameGrad)" opacity="0.9"/><path d="M22 140 Q8 115 14 82 Q20 100 26 92 Q16 120 30 140 Z" fill="url(#flameGrad)" opacity="0.7"/><!-- Right flame --><path d="M172 130 Q185 110 180 85 Q175 100 170 95 Q178 115 165 130 Z" fill="url(#flameGrad)" opacity="0.9"/><path d="M178 140 Q192 115 186 82 Q180 100 174 92 Q184 120 170 140 Z" fill="url(#flameGrad)" opacity="0.7"/><!-- Badminton player silhouette (simplified) --><!-- Body --><ellipse cx="110" cy="62" rx="8" ry="10" fill="#F5EDD8" opacity="0.9"/><!-- Head --><circle cx="110" cy="48" r="8" fill="#F5EDD8" opacity="0.9"/><!-- Arm up with racket --><line x1="108" y1="58" x2="88" y2="38" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><!-- Racket frame --><ellipse cx="82" cy="33" rx="11" ry="14" fill="none" stroke="#D4A017" stroke-width="2.5" transform="rotate(-30 82 33)"/><!-- Racket handle --><line x1="90" y1="42" x2="100" y2="55" stroke="#F5EDD8" stroke-width="3" stroke-linecap="round" opacity="0.8"/><!-- Shuttlecock --><circle cx="64" cy="22" r="4" fill="#F5EDD8" opacity="0.9"/><line x1="64" y1="22" x2="58" y2="12" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><line x1="64" y1="22" x2="64" y2="11" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><line x1="64" y1="22" x2="70" y2="12" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><!-- Legs --><line x1="110" y1="72" x2="100" y2="95" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><line x1="110" y1="72" x2="125" y2="88" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><!-- Gold divider line --><line x1="40" y1="105" x2="160" y2="105" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6"/><!-- SOUTHERN text --><text x="100" y="122" font-family="Bebas Neue,sans-serif" font-size="22" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="3">SOUTHERN</text><!-- SMASHERS text --><text x="100" y="145" font-family="Bebas Neue,sans-serif" font-size="26" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="2">SMASHERS</text><!-- Stars --><text x="73" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="91" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="109" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="127" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><!-- Bottom shield point gold accent --><path d="M85 178 Q100 192 115 178 Q100 188 85 178 Z" fill="#D4A017" opacity="0.6"/></svg><div style="line-height:1.1"><div style="font-family:'Bebas Neue',cursive;font-size:1.15rem;color:var(--accent);letter-spacing:.14em;text-shadow:0 0 12px rgba(0,0,0,.1)">SOUTHERN SMASHERS</div></div></button>
+  <button onclick="showView('sessions',document.querySelector('.nav-tab'))" style="background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;padding:4px 0"><svg width="42" height="42" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="bgGrad" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#1a2a1a"/><stop offset="100%" stop-color="#0a0f0a"/></radialGradient><linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#F0C040"/><stop offset="100%" stop-color="#C88000"/></linearGradient><linearGradient id="flameGrad" x1="0%" y1="100%" x2="0%" y2="0%"><stop offset="0%" stop-color="#C0200A"/><stop offset="50%" stop-color="#E05A00"/><stop offset="100%" stop-color="#F0C040"/></linearGradient></defs><!-- Shield body --><path d="M100 8 L18 38 L18 110 Q18 168 100 192 Q182 168 182 110 L182 38 Z" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="4"/><!-- Red inner border --><path d="M100 18 L28 44 L28 110 Q28 160 100 180 Q172 160 172 110 L172 44 Z" fill="none" stroke="#C0200A" stroke-width="2.5" opacity="0.7"/><!-- Left flame --><path d="M28 130 Q15 110 20 85 Q25 100 30 95 Q22 115 35 130 Z" fill="url(#flameGrad)" opacity="0.9"/><path d="M22 140 Q8 115 14 82 Q20 100 26 92 Q16 120 30 140 Z" fill="url(#flameGrad)" opacity="0.7"/><!-- Right flame --><path d="M172 130 Q185 110 180 85 Q175 100 170 95 Q178 115 165 130 Z" fill="url(#flameGrad)" opacity="0.9"/><path d="M178 140 Q192 115 186 82 Q180 100 174 92 Q184 120 170 140 Z" fill="url(#flameGrad)" opacity="0.7"/><!-- Badminton player silhouette (simplified) --><!-- Body --><ellipse cx="110" cy="62" rx="8" ry="10" fill="#F5EDD8" opacity="0.9"/><!-- Head --><circle cx="110" cy="48" r="8" fill="#F5EDD8" opacity="0.9"/><!-- Arm up with racket --><line x1="108" y1="58" x2="88" y2="38" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><!-- Racket frame --><ellipse cx="82" cy="33" rx="11" ry="14" fill="none" stroke="#D4A017" stroke-width="2.5" transform="rotate(-30 82 33)"/><!-- Racket handle --><line x1="90" y1="42" x2="100" y2="55" stroke="#F5EDD8" stroke-width="3" stroke-linecap="round" opacity="0.8"/><!-- Shuttlecock --><circle cx="64" cy="22" r="4" fill="#F5EDD8" opacity="0.9"/><line x1="64" y1="22" x2="58" y2="12" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><line x1="64" y1="22" x2="64" y2="11" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><line x1="64" y1="22" x2="70" y2="12" stroke="#F5EDD8" stroke-width="1.5" opacity="0.8"/><!-- Legs --><line x1="110" y1="72" x2="100" y2="95" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><line x1="110" y1="72" x2="125" y2="88" stroke="#F5EDD8" stroke-width="4" stroke-linecap="round" opacity="0.9"/><!-- Gold divider line --><line x1="40" y1="105" x2="160" y2="105" stroke="url(#goldGrad)" stroke-width="1.5" opacity="0.6"/><!-- SOUTHERN text --><text x="100" y="122" font-family="Bebas Neue,sans-serif" font-size="22" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="3">SOUTHERN</text><!-- SMASHERS text --><text x="100" y="145" font-family="Bebas Neue,sans-serif" font-size="26" fill="url(#goldGrad)" text-anchor="middle" letter-spacing="2">SMASHERS</text><!-- Stars --><text x="73" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="91" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="109" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><text x="127" y="163" font-family="sans-serif" font-size="12" fill="#D4A017">★</text><!-- Bottom shield point gold accent --><path d="M85 178 Q100 192 115 178 Q100 188 85 178 Z" fill="#D4A017" opacity="0.6"/></svg><div style="line-height:1.1"><div id="nav-club-name" style="font-family:'Bebas Neue',cursive;font-size:1.05rem;color:var(--accent);letter-spacing:.14em;text-shadow:0 0 12px rgba(0,0,0,.1)">SOUTHERN SMASHERS</div><div id="nav-club-sub" style="font-size:.6rem;color:var(--muted);letter-spacing:.15em;text-transform:uppercase"></div></div></button>
   <div class="nav-tabs">
     <button class="nav-tab" data-view="rsvp" onclick="showView('rsvp',this)" title="RSVP">
       <span class="tab-icon">✅</span><span class="tab-label">RSVP</span>
@@ -564,13 +573,22 @@ const CFG = window.APP_CONFIG || {};
   if (themeColor && t.bg) themeColor.content = t.bg;
 
   // Nav bar inline style (gradient needs JS since CSS vars can't be in gradient strings easily)
-  document.addEventListener('DOMContentLoaded', function() {
-    // Club name in nav
-    const nameEl = document.getElementById('nav-club-name');
-    if (nameEl) nameEl.textContent = CFG.clubName || 'Southern Smashers';
-    const subEl = document.getElementById('nav-club-sub');
-    if (subEl) subEl.textContent = CFG.groupName || '';
-  });
+  // Apply name immediately AND on DOMContentLoaded (covers both parse orders)
+  function _applyNavName() {
+    var nameEl = document.getElementById('nav-club-name');
+    var subEl  = document.getElementById('nav-club-sub');
+    if (nameEl) nameEl.textContent = CFG.clubName  || 'Southern Smashers';
+    if (subEl)  subEl.textContent  = CFG.groupName || '';
+    document.title = CFG.clubName || 'Southern Smashers';
+    var appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    if (appleTitle) appleTitle.content = CFG.clubName || 'Southern Smashers';
+    var themeColor = document.querySelector('meta[name="theme-color"]');
+    var t = CFG.theme || {};
+    if (themeColor && t.bg) themeColor.content = t.bg;
+  }
+  document.addEventListener('DOMContentLoaded', _applyNavName);
+  // Also run after a short delay to catch cases where DOM is ready before listener fires
+  setTimeout(_applyNavName, 0);
 })();
 const SUPABASE_URL = CFG.supabaseUrl || '';
 const SUPABASE_KEY = CFG.supabaseKey || '';
@@ -1215,7 +1233,7 @@ function doOpenWA(sid){
   const going=s.players.filter(p=>p.status==='going');
   const maybe=s.players.filter(p=>p.status==='maybe');
   const spots=Math.max(0,s.maxPlayers-going.length);
-  let msg='🏸 *SOUTHERN SMASHERS*\n📅 '+fmtDate(s.date)+' at '+s.time+'\n📍 '+s.venue+'\n';
+  let msg='🏸 *'+(CFG.clubName||'Southern Smashers')+'*\n📅 '+fmtDate(s.date)+' at '+s.time+'\n📍 '+s.venue+'\n';
   if(s.notes)msg+='📌 '+s.notes+'\n';
   msg+='\n👥 *'+going.length+'/'+s.maxPlayers+' confirmed* · '+(spots?spots+' spot'+(spots>1?'s':'')+' left':'⚠️ FULL')+'\n';
   if(going.length)msg+='\n✅ Going: '+going.map(p=>p.name).join(', ')+'\n';
