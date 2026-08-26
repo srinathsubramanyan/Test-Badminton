@@ -6,7 +6,9 @@
  */
 window.APP_CONFIG = {
 
- // ── Identity ──────────────────────────────────────────────
+window.APP_CONFIG = {
+
+  // ── Identity ──────────────────────────────────────────────
   clubName:  'Baddy Buddies',
   groupName: 'Tuesday Group',      // shown under club name in nav
 
@@ -21,7 +23,7 @@ window.APP_CONFIG = {
   sessionPin: '2055',
   financePin: '2055',
 
-  // ── Theme — WHITE / BLUE / PURPLE (Baddy Buddies) ──────────
+ // ── Theme — WHITE / BLUE / PURPLE (Baddy Buddies) ──────────
   theme: {
     // Backgrounds
     bg:          '#FFFFFF',   // crisp white — main page bg
@@ -45,5 +47,13 @@ window.APP_CONFIG = {
     // Nav
     navBg:       'linear-gradient(135deg,#1E40AF 0%,#2563EB 60%,#4F46E5 100%)',
     navBorder:   '#7C3AED',
+
+    // Chip / status colours for light theme
+    chipGoingBg:     'rgba(37,99,235,.08)',
+    chipGoingBorder: '#2563EB',
+    chipNoBg:        'rgba(220,38,38,.08)',
+    chipNoBorder:    '#DC2626',
+    chipMaybeBg:     'rgba(124,58,237,.08)',
+    chipMaybeBorder: '#7C3AED',
   },
 };
