@@ -12,9 +12,10 @@
 // ─── PASTE YOUR GROUP CONFIG BELOW ────────────────────────────────────────
 window.APP_CONFIG = {
 
-  clubName:  'Baddy Buddies',
-  groupName: 'Tuesday Group',      // shown under club name in nav
-
+  // ── Identity ──────────────────────────────────────────────
+  clubName:  'Southern Smashers',
+  groupName: 'Saturday Group',       // shown under club name in nav
+  
   supabaseUrl: 'https://goegqodxnqmqfuhqqwje.supabase.co',
   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvZWdxb2R4bnFtcWZ1aHFxd2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3OTM0MzcsImV4cCI6MjEwMjM2OTQzN30.qC-7tyI2OoIMl-boW7f-NtWz63AUgMdacQ6uUeWo7Mw',
 
@@ -22,44 +23,29 @@ window.APP_CONFIG = {
   sessionPin: '2055',
   financePin: '2055',
 
-// ── Theme — WHITE / EMERALD / CORAL ────────────────────────
-  // Clean, high-contrast, light — completely distinct from SS dark gold
+  // ── Theme — DARK GOLD (Southern Smashers signature) ────────
   theme: {
-    // Backgrounds — pure white, very light tints
-    bg:          '#FFFFFF',   // page background
-    card:        '#F9FAFB',   // card surface (near white)
-    card2:       '#F0FDF4',   // stat boxes — light emerald tint
-    dark:        '#111827',   // darkest text / overlays
+    // Backgrounds
+    bg:          '#0F1923',   // dark charcoal — main page bg
+    card:        '#1A2433',   // dark card surface
+    card2:       '#0F1923',   // deeper card / stat box
+    dark:        '#0A1018',   // darkest
 
-    // Accents — emerald green primary, coral secondary
-    accent:      '#059669',   // emerald green — buttons, highlights
-    accent2:     '#F97316',   // coral orange — secondary accent
-    accentText:  '#FFFFFF',   // white text on accent buttons
+    // Accent colours
+    accent:      '#D4A017',   // gold — primary accent
+    accent2:     '#E05A00',   // flame orange — secondary
+    accentText:  '#0A1018',   // text on accent buttons
 
-    // Text — high contrast dark on white
-    text:        '#111827',   // near-black main text
-    textMuted:   '#6B7280',   // medium grey for labels
+    // Text
+    text:        '#F5EDD8',   // warm cream — main text
+    textMuted:   '#8A9AB0',   // muted / labels
 
-    // Borders — subtle light grey
-    border:      '#E5E7EB',   // light grey border
-    red:         '#DC2626',   // error / delete
+    // Borders
+    border:      '#2C3E52',   // dark blue-grey border
+    red:         '#C0200A',   // error / delete
 
-    // Nav — white with emerald bottom border (clean, minimal)
-    navBg:       'linear-gradient(135deg,#FFFFFF 0%,#F9FAFB 100%)',
-    navBorder:   '#059669',
-
-    // Chips — coloured tints that read clearly on white
-    chipGoingBg:     'rgba(5,150,105,.1)',    // emerald tint
-    chipGoingBorder: '#059669',
-    chipNoBg:        'rgba(220,38,38,.08)',   // red tint
-    chipNoBorder:    '#DC2626',
-    chipMaybeBg:     'rgba(249,115,22,.08)',  // coral tint
-    chipMaybeBorder: '#F97316',
-
-    // RSVP hero — always dark so text is readable
-    heroBg1:    '#064E3B',   // deep emerald
-    heroBg2:    '#065F46',   // slightly lighter emerald
-    heroText:   'rgba(255,255,255,.85)',  // white subtitle text
-    heroAccent: '#6EE7B7',   // light emerald for the title
+    // Nav
+    navBg:       'linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%)',
+    navBorder:   '#D4A017',
   },
 };
