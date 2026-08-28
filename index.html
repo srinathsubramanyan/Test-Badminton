@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!-- PWA -->
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0F1923">
+<meta name="theme-color" content="#1A3D2B">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Southern Smashers">
+<meta name="apple-mobile-web-app-title" content="ShuttleUp">
 <link rel="apple-touch-icon" href="icon-180.png">
-<title>Southern Smashers</title>
+<title>ShuttleUp</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="config.js"></script>
 <script>
@@ -45,6 +45,15 @@
     '--stat-neg:'         + (t.statNeg        || '#C0200A'),
   ].join(';');
   document.write('<style>:root{' + vars + '}</style>');
+
+  // Update title and meta tags immediately from config
+  var name = c.clubName || 'ShuttleUp';
+  document.title = name;
+  var metas = document.getElementsByTagName('meta');
+  for (var i = 0; i < metas.length; i++) {
+    if (metas[i].name === 'apple-mobile-web-app-title') metas[i].content = name;
+    if (metas[i].name === 'theme-color' && t.bg) metas[i].content = t.bg;
+  }
 })();
 </script>
 <style>
@@ -57,7 +66,7 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .nav-tabs{display:flex;gap:3px;}
 .nav-tab{padding:6px 12px;border-radius:20px;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:500;cursor:pointer;transition:all 0.2s;}
 .nav-tab.active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-txt);font-weight:700;}
-.nav-tab:hover:not(.active){color:white;}
+.nav-tab:hover:not(.active){color:var(--accent);}
 .view{display:none;padding:20px 14px;max-width:860px;margin:0 auto;}
 .view.active{display:block;}
 .page-hdr{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px;}
@@ -576,16 +585,17 @@ const CFG = window.APP_CONFIG || {};
   // Nav bar inline style (gradient needs JS since CSS vars can't be in gradient strings easily)
   // Apply name immediately AND on DOMContentLoaded (covers both parse orders)
   function _applyNavName() {
+    var cfg = window.APP_CONFIG || {};
+    var name = cfg.clubName || 'ShuttleUp';
     var nameEl = document.getElementById('nav-club-name');
     var subEl  = document.getElementById('nav-club-sub');
-    if (nameEl) nameEl.textContent = CFG.clubName  || 'Southern Smashers';
-    if (subEl)  subEl.textContent  = CFG.groupName || '';
-    document.title = CFG.clubName || 'Southern Smashers';
+    if (nameEl) nameEl.textContent = name;
+    if (subEl)  subEl.textContent  = cfg.groupName || '';
+    document.title = name;
     var appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
-    if (appleTitle) appleTitle.content = CFG.clubName || 'Southern Smashers';
+    if (appleTitle) appleTitle.content = name;
     var themeColor = document.querySelector('meta[name="theme-color"]');
-    var t = CFG.theme || {};
-    if (themeColor && t.bg) themeColor.content = t.bg;
+    if (themeColor && cfg.theme && cfg.theme.bg) themeColor.content = cfg.theme.bg;
   }
   document.addEventListener('DOMContentLoaded', _applyNavName);
   // Also run after a short delay to catch cases where DOM is ready before listener fires
