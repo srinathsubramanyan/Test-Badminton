@@ -28,7 +28,7 @@ window.APP_CONFIG = {
     bg:          '#FFFFFF',   // crisp white — main page bg
     card:        '#F8F9FA',   // very light grey card surface
     card2:       '#EEF2FF',   // soft indigo tint — stat boxes
-    dark:        '#1E293B',   // near-black for darkest elements
+    dark:        '#FFFFFF',   // near-black for darkest elements
 
     // Accent colours
     accent:      '#2563EB',   // strong blue — primary accent
