@@ -6,11 +6,9 @@
  */
 window.APP_CONFIG = {
 
-window.APP_CONFIG = {
-
   // ── Identity ──────────────────────────────────────────────
-  clubName:  'Baddy Buddies',
-  groupName: 'Tuesday Group',      // shown under club name in nav
+  clubName:  'Southern Smashers',
+  groupName: 'Monday Group',       // shown under club name in nav
 
   // ── Supabase credentials ───────────────────────────────────
   // Get these from: Supabase project → Settings → API
@@ -23,37 +21,29 @@ window.APP_CONFIG = {
   sessionPin: '2055',
   financePin: '2055',
 
- // ── Theme — WHITE / BLUE / PURPLE (Baddy Buddies) ──────────
+  // ── Theme — DARK GOLD (Southern Smashers signature) ────────
   theme: {
     // Backgrounds
-    bg:          '#FFFFFF',   // crisp white — main page bg
-    card:        '#F8F9FA',   // very light grey card surface
-    card2:       '#EEF2FF',   // soft indigo tint — stat boxes
-    dark:        '#1E293B',   // near-black for darkest elements
+    bg:          '#0F1923',   // dark charcoal — main page bg
+    card:        '#1A2433',   // dark card surface
+    card2:       '#0F1923',   // deeper card / stat box
+    dark:        '#0A1018',   // darkest
 
     // Accent colours
-    accent:      '#2563EB',   // strong blue — primary accent
-    accent2:     '#7C3AED',   // purple — secondary
-    accentText:  '#FFFFFF',   // text on accent buttons
+    accent:      '#D4A017',   // gold — primary accent
+    accent2:     '#E05A00',   // flame orange — secondary
+    accentText:  '#0A1018',   // text on accent buttons
 
     // Text
-    text:        '#1E293B',   // dark slate — main text
-    textMuted:   '#64748B',   // slate grey — labels / muted
+    text:        '#F5EDD8',   // warm cream — main text
+    textMuted:   '#8A9AB0',   // muted / labels
 
     // Borders
-    border:      '#E2E8F0',   // soft grey border
-    red:         '#DC2626',   // error / delete
+    border:      '#2C3E52',   // dark blue-grey border
+    red:         '#C0200A',   // error / delete
 
     // Nav
-    navBg:       'linear-gradient(135deg,#1E40AF 0%,#2563EB 60%,#4F46E5 100%)',
-    navBorder:   '#7C3AED',
-
-    // Chip / status colours for light theme
-    chipGoingBg:     'rgba(37,99,235,.08)',
-    chipGoingBorder: '#2563EB',
-    chipNoBg:        'rgba(220,38,38,.08)',
-    chipNoBorder:    '#DC2626',
-    chipMaybeBg:     'rgba(124,58,237,.08)',
-    chipMaybeBorder: '#7C3AED',
+    navBg:       'linear-gradient(135deg,#0A1018 0%,#0F1923 60%,#140800 100%)',
+    navBorder:   '#D4A017',
   },
 };
