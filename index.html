@@ -43,6 +43,10 @@
     '--chip-maybe-border:'+ (t.chipMaybeBorder|| '#E05A00'),
     '--stat-pos:'         + (t.statPos        || '#D4A017'),
     '--stat-neg:'         + (t.statNeg        || '#C0200A'),
+    '--hero-bg1:'       + (t.heroBg1       || 'var(--dark)'),
+    '--hero-bg2:'       + (t.heroBg2       || '#1a2c3a'),
+    '--hero-text:'      + (t.heroText      || 'rgba(255,255,255,.8)'),
+    '--hero-accent:'    + (t.heroAccent    || 'var(--accent)'),
   ].join(';');
   document.write('<style>:root{' + vars + '}</style>');
 
@@ -135,10 +139,10 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 .tbl td{padding:9px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
 .tbl tr:last-child td{border-bottom:none;}
 .tbl tr:hover td{background:var(--bg);}
-.rsvp-hero{background:linear-gradient(135deg,var(--dark),var(--card));border:2px solid var(--accent);border-radius:14px;padding:22px 18px;margin-bottom:18px;position:relative;overflow:hidden;}
+.rsvp-hero{background:linear-gradient(135deg,var(--hero-bg1,var(--dark)),var(--hero-bg2,#1a2c3a));border:2px solid var(--accent);border-radius:14px;padding:22px 18px;margin-bottom:18px;position:relative;overflow:hidden;}
 .rsvp-hero::before{content:'🏸';position:absolute;right:18px;top:50%;transform:translateY(-50%);font-size:3.5rem;opacity:.12;}
-.rsvp-hero h1{font-family:'Bebas Neue',cursive;font-size:1.8rem;font-weight:400;color:var(--accent);letter-spacing:.06em;}
-.rsvp-hero p{color:var(--muted);font-size:0.87rem;margin-top:3px;}
+.rsvp-hero h1{font-family:'Bebas Neue',cursive;font-size:1.8rem;font-weight:400;color:var(--hero-accent,var(--accent));letter-spacing:.06em;}
+.rsvp-hero p{color:var(--hero-text,rgba(255,255,255,.8));font-size:0.87rem;margin-top:3px;}
 .rsvp-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;}
 .rsvp-card h3{font-family:'Syne',sans-serif;font-size:0.95rem;font-weight:800;color:var(--green);margin-bottom:13px;}
 .rsvp-opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px;}

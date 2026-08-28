@@ -59,5 +59,11 @@ window.APP_CONFIG = {
     chipNoBorder:    '#DC2626',
     chipMaybeBg:     'rgba(249,115,22,.08)',  // coral tint
     chipMaybeBorder: '#F97316',
+
+    // RSVP hero — always dark so text is readable
+    heroBg1:    '#064E3B',   // deep emerald
+    heroBg2:    '#065F46',   // slightly lighter emerald
+    heroText:   'rgba(255,255,255,.85)',  // white subtitle text
+    heroAccent: '#6EE7B7',   // light emerald for the title
   },
 };
