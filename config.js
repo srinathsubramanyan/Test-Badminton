@@ -1,28 +1,26 @@
 /**
- * config.js — GROUP SWITCHER
- * ───────────────────────────
- * This is the ONLY file that differs between the two group deployments.
- *
- * For Southern Smashers (Monday):  paste contents of southern-smashers-config.js here
- * For Baddy Buddies (Tuesday):     paste contents of baddy-buddies-config.js here
- *
- * Current: Southern Smashers (Monday Group)
+ * SOUTHERN SMASHERS — Monday Group Config
+ * ─────────────────────────────────────────
+ * Rename this file to config.js in your deployment folder.
+ * Never edit index.html — only this file needs to change per group.
  */
-
-// ─── PASTE YOUR GROUP CONFIG BELOW ────────────────────────────────────────
 window.APP_CONFIG = {
 
   // ── Identity ──────────────────────────────────────────────
   clubName:  'Southern Smashers',
-  groupName: 'Saturday Group',       // shown under club name in nav
-  
+  groupName: 'Monday Group',       // shown under club name in nav
+
+  // ── Supabase credentials ───────────────────────────────────
+  // Get these from: Supabase project → Settings → API
   supabaseUrl: 'https://goegqodxnqmqfuhqqwje.supabase.co',
   supabaseKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdvZWdxb2R4bnFtcWZ1aHFxd2plIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY3OTM0MzcsImV4cCI6MjEwMjM2OTQzN30.qC-7tyI2OoIMl-boW7f-NtWz63AUgMdacQ6uUeWo7Mw',
 
+  // ── Finance defaults ───────────────────────────────────────
+  // These are fallback values — app_settings in the database takes precedence
   casualFee:  11,
   sessionPin: '2055',
   financePin: '2055',
-  
+
   // ── Theme — DARK GOLD (Southern Smashers signature) ────────
   theme: {
     // Backgrounds
