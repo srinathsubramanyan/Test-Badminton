@@ -47,6 +47,10 @@
     '--hero-bg2:'       + (t.heroBg2       || '#1a2c3a'),
     '--hero-text:'      + (t.heroText      || 'rgba(255,255,255,.8)'),
     '--hero-accent:'    + (t.heroAccent    || 'var(--accent)'),
+    '--nav-tab-color:'         + (t.navTabColor        || 'rgba(245,237,216,0.55)'),
+    '--nav-tab-active-bg:'     + (t.navTabActiveBg     || 'rgba(212,160,23,.15)'),
+    '--nav-tab-active-border:' + (t.navTabActiveBorder || 'rgba(212,160,23,.3)'),
+    '--nav-tab-hover-bg:'      + (t.navTabHoverBg      || 'rgba(212,160,23,.08)'),
   ].join(';');
   document.write('<style>:root{' + vars + '}</style>');
 
@@ -252,12 +256,12 @@ nav{background:var(--nav-bg);border-bottom:2px solid var(--nav-border);padding:0
 
 /* ── RESPONSIVE NAV TABS ─────────────────────────────────── */
 .nav-tabs{display:flex;gap:2px;}
-.nav-tab{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 10px;border-radius:10px;border:none;background:transparent;color:rgba(245,237,216,0.45);font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:.02em;}
+.nav-tab{display:flex;flex-direction:column;align-items:center;gap:1px;padding:5px 10px;border-radius:10px;border:none;background:transparent;color:var(--nav-tab-color,rgba(245,237,216,0.55));font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:600;cursor:pointer;transition:all 0.2s;letter-spacing:.02em;}
 .nav-tab .tab-icon{font-size:1.1rem;line-height:1;}
 .nav-tab .tab-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:.08em;}
-.nav-tab.active{background:linear-gradient(135deg,rgba(212,160,23,.2),rgba(0,0,0,.08));color:var(--accent);border:1px solid rgba(0,0,0,.08);}
-.nav-tab.vll-tab.active{background:linear-gradient(135deg,rgba(192,32,10,.25),rgba(224,90,0,.2));color:var(--accent);border:1px solid rgba(240,192,64,.3);}
-.nav-tab:hover:not(.active){color:var(--accent);background:rgba(212,160,23,.08);}
+.nav-tab.active{background:var(--nav-tab-active-bg,rgba(212,160,23,.15));color:var(--accent);border:1px solid var(--nav-tab-active-border,rgba(212,160,23,.3));}
+.nav-tab.vll-tab.active{background:var(--nav-tab-active-bg,rgba(212,160,23,.15));color:var(--accent2);border:1px solid var(--nav-tab-active-border,rgba(212,160,23,.3));}
+.nav-tab:hover:not(.active){color:var(--accent);background:var(--nav-tab-hover-bg,rgba(212,160,23,.08));}
 @media(max-width:360px){.nav-tab .tab-label{display:none;}.nav-tab{padding:6px 8px;}}
 /* ── CARD AESTHETICS ─────────────────────────────────────── */
 .card{background:var(--card);border:1px solid rgba(0,0,0,.1);border-radius:16px;overflow:hidden;margin-bottom:16px;box-shadow:0 4px 24px rgba(0,0,0,.15),0 0 0 1px rgba(0,0,0,.06);}

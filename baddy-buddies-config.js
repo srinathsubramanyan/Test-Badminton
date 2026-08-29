@@ -65,5 +65,11 @@ window.APP_CONFIG = {
     heroBg2:    '#065F46',   // slightly lighter emerald
     heroText:   'rgba(255,255,255,.85)',  // white subtitle text
     heroAccent: '#6EE7B7',   // light emerald for the title
+
+    // Nav tab colours — dark text on white nav
+    navTabColor:        '#111827',          // inactive tab text — near-black, visible on white
+    navTabActiveBg:     'rgba(5,150,105,.12)',  // emerald tint for active tab
+    navTabActiveBorder: '#059669',              // emerald border on active tab
+    navTabHoverBg:      'rgba(5,150,105,.06)',  // subtle emerald on hover
   },
 };
